@@ -1,4 +1,4 @@
-# symbian-minisdk-carbide-cppo
+# symbian-minisdk-carbide-cpp
 
 - Check `examples` for ready to go apps
 - Check `sdk-mini` for the compact SDK that facilitates easy start
