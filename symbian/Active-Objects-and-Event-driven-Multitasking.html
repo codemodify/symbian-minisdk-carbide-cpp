@@ -1,0 +1,325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <link rel="stylesheet" type="text/css" href="../css/style-sheet.css">
+  <title>Symbian OS</title>
+</head>
+<body>
+<h2>Active Objects and Event-driven Multitasking</h2>
+<br>
+Active objects are a fundamental part of Symbian OS.<br>
+They are designed for responsive and efficient event handling.<br>
+<br>
+<h4><span style="font-weight: bold;">Before explaining active objects,
+let&#8217;s consider how code actually &#8221;runs&#8221;.</span></h4>
+A thread is a fundamental unit of execution, which runs within a
+process.<br>
+A process has its own address space and may have one or more threads
+independently <br>
+executing code within it. When a process is created, a single primary
+thread is <br>
+initialized within it. Other threads may then be created. Code
+executing in that<br>
+process accesses "virtual memory addresses" which are mapped for that
+process to <br>
+physical locations in hardware by the memory management unit. <br>
+The writable memory of one process is not normally accessible to
+another process, <br>
+thus &#8221;protecting&#8221; processes from each other. However, multiple threads
+running in <br>
+the same process are not isolated from each other in the same way
+because they share <br>
+the memory mapped for the process in which they run. This means that
+they can access each<br>
+other&#8217;s data, which is useful, but they can also accidentally scribble
+on it, which is not.<br>
+<br>
+On Symbian OS, threads are scheduled pre-emptively by the kernel.<br>
+Each thread may be suspended while waiting for a given event to occur
+and may resume <br>
+whenever appropriate. The kernel controls thread scheduling, allowing
+the threads to <br>
+share the system resources by time-slice division, preempting the
+running of a thread <br>
+if another, higher priority thread becomes eligible to run. This
+constant switching of <br>
+the running thread is the basis of <span style="font-weight: bold;">pre-emptive
+multitasking</span>, which allows multiple <br>
+servers and applications to run simultaneously. A context switch occurs
+when the <br>
+currently running thread is suspended <span
+ style="font-weight: bold; font-style: italic;">(for example, if it is
+blocked, has reached</span><br
+ style="font-weight: bold; font-style: italic;">
+<span style="font-weight: bold; font-style: italic;">the end of its
+time-slice, or a higher priority thread becomes ready to </span><span
+ style="font-weight: bold; font-style: italic;">run)</span> and another
+<br>
+thread is made current by the scheduler. The context switch incurs a
+runtime overhead <br>
+in terms of the kernel scheduler and, potentially, the memory
+management unit and <br>
+hardware caches, if the original and replacing threads are executing in
+different processes.<br>
+<br>
+On hardware running Symbian OS, resources are more limited than on a
+typical desktop PC. <br>
+Thus, on Symbian OS, besides the requirements to be responsive and
+handle power consumption <br>
+carefully, it is also important that the memory used by event-handling
+code is minimized and <br>
+that processor resources are used efficiently. <span
+ style="font-weight: bold;">Active objects </span>assist with
+efficient programming <br>
+by providing a model for lightweight, event-driven multitasking.<br>
+<br>
+<span style="font-weight: bold;">Active objects</span> encapsulate the
+traditional wait loop inside a class. They were designed such <br>
+that a switch between active objects that run in the same thread incurs
+a lower overhead than <br>
+a thread context switch. This makes active objects preferable for
+event-driven multitasking on<br>
+Symbian OS.<br>
+<br>
+On Symbian OS, active objects multitask cooperatively and,
+consequently, there is no need for <br>
+synchronization protection of shared resources. In addition, because
+active objects run in the <br>
+same thread, memory and objects may be shared more readily.<br>
+<br>
+On Symbian OS, the use of active objects for event-handling
+multitasking is ideal because they <br>
+are designed for efficiency and responsiveness. In general, a Symbian
+OS application or server <br>
+will consist of a single main event-handling thread. A set of active
+objects run in the thread, <br>
+each representing a task. Each active object requests an asynchronous
+service, waits while it <br>
+is serviced, handles the request completion event and communicates with
+other tasks as necessary.<br>
+<br>
+Some events require a response within a guaranteed time, regardless of
+any other activity in the <br>
+system. This is called &#8221;real-time&#8221; event-handling. For example, a
+real-time task may be required <br>
+to keep the buffer of a sound driver supplied with sound data &#8211; a delay
+in response delays the<br>
+sound decoding, which results in it breaking up. Other typical
+real-time requirements may be <br>
+even more strict, say for low-level telephony. These tasks have, in
+effect, different requirements <br>
+for real-time responses, which can be represented by task priorities.
+Higher-priority tasks must <br>
+always be able to <span style="font-weight: bold;">"pre-empt"</span>
+lower-priority tasks in order to guarantee to meet their real-time <br>
+requirements. The shorter the response time required, the higher the
+priority that should be <br>
+assigned to a task.<br>
+<br>
+However, once an active object is handling an event, it may not be
+pre-empted by the event <br>
+handler of another active object, which means that they are not
+suitable for real-time tasks.<br>
+On Symbian OS, real-time tasks should be implemented using
+high-priority threads and processes, <br>
+with the priorities chosen as appropriate for relative real-time
+requirements.<br>
+<br>
+<span style="font-style: italic; color: rgb(102, 0, 0);">Note: although
+the active objects within a thread run cooperatively without </span><span
+ style="font-style: italic; color: rgb(102, 0, 0);">pre-emption, <br>
+on Symbian OS the thread in which they run is scheduled pre-emptively.</span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<br>
+<span style="text-decoration: underline; font-style: italic;">Active
+objects are used on Symbian OS to simplify asynchronous programming and
+make it <br>
+easy for you to write code to submit asynchronous requests, manage
+their completion events <br>
+and process the result. They are well suited for lightweight
+event-driven programming,</span><br
+ style="text-decoration: underline; font-style: italic;">
+<span style="text-decoration: underline; font-style: italic;">except
+where a real-time, guaranteed response is required.</span><br
+ style="font-weight: bold;">
+<br>
+<br>
+<br>
+<br>
+<h4>How Active Objects work<span style="font-family: monospace;"></span></h4>
+A typical Symbian OS application or server consists of a single
+event-handling thread <br>
+running a scheduler (the &#8221;active scheduler&#8221;) which coordinates one or
+more active objects. <br>
+Each active object requests an asynchronous service and handles the
+resulting completion <br>
+event some time after the request. It also provides a way to cancel an
+outstanding request <br>
+and may provide error handling for exceptional conditions.<br>
+<br>
+<br>
+<h4>How to work with Active Objects</h4>
+An active object class must derive from class CActive, which is defined
+in "e32base.h" .<br>
+-A derivate from this class must call "CActiveScheduler::Add()" in its
+constructor,<br>
+&nbsp;to be added to the active scheduler.<br>
+-A derivate from this class must implement RunL() in oder to be able to
+handle events.<br>
+-A derivate from this class must always call Cancel() in the destructor
+to terminate any<br>
+outstanding requests.<br>
+<br>
+Here are the most importand methods.<br>
+<img style="width: 524px; height: 446px;" alt=""
+ src="resources/active-object-class.PNG"><br>
+<br>
+<br>
+<br>
+<br>
+<h4>Threads Without an Active Scheduler</h4>
+Most threads running on Symbian OS have an active scheduler, which is
+usually created <br>
+implicitly by a framework (e.g. CONE for the GUI framework). However,
+if you are <br>
+implementing a server, you have to create and start an active scheduler
+explicitly <br>
+before you can use active objects. Likewise, console-based test code
+may not use active <br>
+objects directly itself, but must create an active scheduler in its
+main thread if it<br>
+depends on components which do use active objects.<br>
+<br>
+<br>
+<br>
+<br>
+<h2>More details on Active Objects</h2>
+Here about the responsibilities of active objects, asynchronous service
+providers and the active scheduler <br>
+and hoe they fit together.<br>
+<br>
+(o) Symbian OS event-handling is usually managed in one thread, which
+runs a single active scheduler.<br>
+(o) The active scheduler holds a set of active objects for that thread,
+each of which encapsulates <br>
+&nbsp;&nbsp;&nbsp; an associated asynchronous service provider.<br>
+(o) Each thread has an associated request semaphore; when an
+asynchronous function completes, it <br>
+&nbsp;&nbsp;&nbsp; generates an event by calling "RequestComplete()" on
+the requesting thread, which signals its<br>
+&nbsp;&nbsp;&nbsp; semaphore and is detected by the active scheduler.<br>
+(o) The active scheduler calls the "RunL()" event handler method of the
+active object associated <br>
+&nbsp;&nbsp;&nbsp; with the completion event.<br>
+<br>
+Active obect encapsulates asynchronous functions. Asynchronous
+functions can be identified as those <br>
+taking a <span style="font-weight: bold;">"TRequestStatus"</span>
+reference parameter into which the request completion status is posted.<br>
+An object implementing such methods is usually known as an <span
+ style="font-weight: bold;">asynchronous service provider</span>.<br>
+<br>
+A typical active object class provides public &#8221;request issuing&#8221; methods
+for its clients to <br>
+submit asynchronous requests. These pass on the requests to the
+encapsulated asynchronous service <br>
+provider, passing by reference the <span style="font-weight: bold;">iStatus</span>
+member variable of the CActive class as the <br>
+<span style="font-weight: bold;">TRequestStatus</span> parameter.
+Having issued the request, the issuer method must call <span
+ style="font-weight: bold;">CActive::SetActive()</span><br>
+to set the <span style="font-weight: bold;">iActive </span>member to
+indicate that there is an outstanding request.<br>
+<br>
+The service provider must set the value of the incoming TRequestStatus
+to KRequestPending (=0x80000001) <br>
+before acting on the request. Upon completion, if the service provider
+is in the same thread as the <br>
+requester, it calls User::RequestComplete(), passing the TRequestStatus
+and a completion result, <br>
+typically one of the standard errors such as KErrNone or KErrNotFound,
+to indicate the success<br>
+or otherwise of the request. User::RequestComplete() sets the value of
+TRequestStatus and generates <br>
+a completion event in the requesting thread by signaling the thread&#8217;s
+request semaphore. If the<br>
+asynchronous service provider and the requester are in separate
+threads, the service provider must <br>
+use an RThread object, representing a handle to the requesting thread,
+to complete the request. <br>
+It should call RThread::RequestComplete() to post the completion code
+and notify the request semaphore.<br>
+<br>
+While the request is outstanding, the requesting thread runs in the
+active scheduler&#8217;s event <br>
+processing loop. When it is not handling completion events, the active
+scheduler suspends <br>
+the thread by calling User::WaitForAnyRequest(), which waits on a
+signal to the thread&#8217;s request <br>
+semaphore. When the asynchronous service provider completes a request,
+it signals the semaphore <br>
+of the requesting thread as described above, and the active scheduler
+determines which active<br>
+object should handle the completed request. It uses its
+priority-ordered list of active objects, <br>
+inspecting each one in turn to determine whether it has a request
+outstanding. It does so by <br>
+checking the iActive flag; if the object does indeed have an
+outstanding request, it then inspects<br>
+its TRequestStatus member variable to see if it is set to a value other
+than KRequestPending. <br>
+If so, this indicates that the active object is associated with a
+request that has completed <br>
+and that its event handler code should be called. Having found a
+suitable active object, <br>
+the active scheduler clears the active object&#8217;s iActive flag and calls
+its RunL() event handler.<br>
+This method handles the event and may, for example, resubmit a request
+or generate an event <br>
+on another object in the system. While this method is running, other
+events may be generated but <br>
+RunL() is not pre-empted &#8211; itruns to completion before the active
+scheduler resumes control and<br>
+determines whether any other requests have completed. Once the RunL()
+call has finished, the <br>
+active scheduler re-enters the event processing wait loop by issuing
+another <br>
+User::WaitForAnyRequest() call. This checks the request semaphore and
+either suspends the thread <br>
+(if no other requests have completed in the meantime) or returns
+immediately (if the semaphore <br>
+indicates that other events were generated while the previous event
+handler was running) so the <br>
+scheduler can repeat active object lookup and event handling.<br>
+<br>
+<img style="width: 519px; height: 454px;" alt=""
+ src="resources/active-scheduler-event-loop.PNG"><br>
+<br>
+<br>
+<span style="font-weight: bold;">An active object&#8217;s priority is only an
+indication of the order in</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">which the active scheduler performs
+lookup and event-handling. It</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">does not reflect an ability to
+pre-empt other active objects.</span><br>
+<br>
+<img style="width: 811px; height: 880px;" alt=""
+ src="resources/roles-for-activeobject-active-scheduler-serviceprovider.PNG"><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body>
+</html>

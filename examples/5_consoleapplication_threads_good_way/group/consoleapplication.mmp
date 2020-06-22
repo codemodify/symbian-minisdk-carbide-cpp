@@ -1,0 +1,17 @@
+
+TARGET        consoleapplication_threads_good_way.exe
+TARGETTYPE    exe
+UID          0 0xEF55B5F1
+
+SYSTEMINCLUDE   \epoc32\include
+
+
+LIBRARY      euser.lib
+
+#ifdef ENABLE_ABIV2_MODE
+DEBUGGABLE
+#endif
+SOURCEPATH ..\sources\commonfunctionalities\easyconsole
+SOURCE easyconsole.cpp
+SOURCEPATH ..\sources
+SOURCE consoleapplication.cpp

@@ -1,0 +1,17 @@
+
+TARGET        consoleapplication_cleanupstack_wrong_way.exe
+TARGETTYPE    exe
+UID          0 0xEF55B5F2
+
+SYSTEMINCLUDE   \epoc32\include
+
+
+LIBRARY      euser.lib
+
+#ifdef ENABLE_ABIV2_MODE
+DEBUGGABLE
+#endif
+SOURCEPATH ..\sources
+SOURCE consoleapplication.cpp
+SOURCEPATH ..\sources\commonfunctionalities\easyconsole
+SOURCE easyconsole.cpp

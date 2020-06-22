@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <link rel="stylesheet" type="text/css" href="../css/style-sheet.css">
+  <title>Threads and Processes</title>
+</head>
+<body>
+<h2>Threads and Processes</h2>
+Active objects are preferred to threads for this role<br>
+because they were designed specifically to suit the resource-limited
+hardware<br>
+upon which Symbian OS runs. Multithreaded code has significantly<br>
+higher run-time requirements compared to active objects: for example,<br>
+a context switch between threads may be an order of magnitude slower<br>
+than a similar switch between active objects running in the same thread.<br>
+Threads tend to have a larger size overhead too, typically requiring 4
+KB<br>
+kernel-side and 8 KB user-side for the program stack, compared to active<br>
+objects, which generally occupy only the size of the C++ object (often<br>
+less than 1 KB).<br>
+<br>
+One of the main differences between multitasking with threads and<br>
+active objects is the way in which they are scheduled. Active objects<br>
+multitask cooperatively within a thread and, once handling an event,<br>
+an active object cannot be pre-empted by the active scheduler in<br>
+which it runs. Threads on Symbian OS are scheduled pre-emptively<br>
+by the kernel.<br>
+<br>
+On Symbian OS, the class used to manipulate threads is RThread.<br>
+An object of type RThread represents a handle to a thread, because <br>
+the thread itself is a kernel object.<br>
+<br>
+</body>
+</html>

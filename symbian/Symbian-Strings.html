@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <link rel="stylesheet" type="text/css" href="../css/style-sheet.css">
+  <title>Symbian OS</title>
+</head>
+<body>
+<h2>Symbian Strings
+</h2>
+a string in symbian is knowsn as "descriptor" - it is self describing.<br>
+<br>
+A descriptor holds: 'length' and the 'type' which identifies the
+underlying memory layout of<br>
+the descriptor data.<br>
+<br>
+The key point to remember is that they were designed to be very<br>
+efficient on low memory devices, using the minimum amount of memory<br>
+necessary to store the string, while describing it fully in terms of
+its length<br>
+and layout.<br>
+<br>
+<big style="font-weight: bold; text-decoration: underline;">What they
+are and how they work<br>
+</big><big><small><br>
+First there is a difference between <span style="font-weight: bold;">descriptors</span>
+and <span style="font-weight: bold;">literals</span>.<br>
+<br>
+Literals can be build into the program binaries in ROM, because they
+are constant.<br>
+</small></big><big><small>Literals a</small></big><big><small>re
+treated differently.<br>
+<br>
+Descritpros have a "property" - <span style="font-weight: bold;">width</span>
+of the string data - which is whether an <br>
+individual character is 8 or 16 bits wide.<br>
+<br>
+<span style="font-weight: bold;">Non-Modifiable Descriptors<br>
+</span>All the classes that derive from "TDesC" become non-modifiable
+descriptors.<br>
+TDesC - provides methods to check the length of the descriptor and to
+access its data.<br>
+In addition, it implements all the operations you&#8217;d typically expect to
+perform on <br>
+a constant string.<br>
+<br>
+<span style="font-weight: bold;">Modifiable Descriptors<br>
+</span></small></big><big><small>All the classes that derive from
+"TDes" become modifiable descriptors.</small></big><br>
+<big><small>TDesC - provides methods </small></big><big><small>you&#8217;d
+typically expect to perform on a string.</small></big><br>
+<big><small><br>
+<span style="font-weight: bold;">Pointer Descriptors<br>
+</span>The string data of a pointer descriptor is separate from the
+descriptor<br>
+object itself and can be stored in ROM, heap or stack. The memory that
+holds <br>
+the data is not &#8221;owned&#8221; by the descriptor and is not managed through it.<span
+ style="font-weight: bold;"><br>
+</span><br>
+(o) If it is on the heap, the memory is created, reallocated if
+necessary, <br>
+&nbsp;&nbsp;&nbsp; and destroyed using a heap descriptor pointer
+"HBufC".<br>
+(o) If a pointer descriptor is referencing a stack-based string, the
+memory <br>
+&nbsp;&nbsp;&nbsp; in question will already have been allocated on the
+stack.<br>
+<br>
+In a non-modifiable pointer descriptor (TPtrC), the pointer to the data
+follows <br>
+the length word, thus the total size of the descriptor object is two
+words. <br>
+<br>
+In a modifiable pointer descriptor (TPtr), it follows the maximum
+length word and <br>
+the descriptor object is three words in length.<br>
+<br>
+<img style="width: 518px; height: 304px;" alt=""
+ src="resources/memory-layout-for-pointer-descriptor.PNG"><br>
+<br>
+<br>
+<span style="font-weight: bold;">Stack-Based Buffer Descriptors<br>
+</span>- modifiable<br>
+&nbsp; string data forms part of the descriptor object, located after
+the length word.<br>
+- non-</small></big><big><small>modifiable<br>
+</small></big><big><small>&nbsp; string data forms part of the
+descriptor object, located after the </small></big><big><small>maximum
+</small></big><big><small>length word.</small></big><br>
+<big><small><br>
+These descriptors are useful for fixed-size or relatively small
+strings, say up to <br>
+the length of a 256-character filename.<br>
+<img style="width: 341px; height: 285px;" alt=""
+ src="resources/memory-layout-for-stack-based-descriptor.png"><br>
+<br>
+<br>
+<br>
+<span style="font-weight: bold;">Heap-Based Buffer Descriptors<br>
+</span>Heap-based descriptors can be used for string data that isn&#8217;t in
+ROM and<br>
+is not placed on the stack because it is too big.<br>
+<br>
+Heap-based descriptors can be used where they may have a longer
+lifetime <br>
+than their creator, for example, passed to an asynchronous function.<br>
+<br>
+The classes representing these descriptors are: HBufC, HBufC8, HBufC16.<br>
+Although these descriptors are always referred to by pointer "HBufC*".<br>
+<br>
+Note: the heap descriptors can be created dynamically to the size you
+require, <br>
+but they are not automatically resized if you want to grow the buffer.<br>
+You must ensure that the buffer has sufficient memory available for the
+operations <br>
+you intend to do. Use "HBufC::ReAllocL()" for this.<br>
+<br>
+<br>
+<span style="font-weight: bold;">Literal Descriptors<br>
+</span>constant descriptors that are compiled into ROM.<br>
+<br>
+<span style="font-weight: bold;"></span>Literal descriptors are a set
+of macros defined in "e32def.h".<br>
+<span style="color: rgb(102, 102, 102); font-style: italic;">#define
+_L8(a)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(TPtrC8((const TText8 *)(a)))</span><br
+ style="color: rgb(102, 102, 102); font-style: italic;">
+<span style="color: rgb(102, 102, 102); font-style: italic;">#define
+_S8(a)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ((const
+TText8 *)a)</span><br
+ style="color: rgb(102, 102, 102); font-style: italic;">
+<span style="color: rgb(102, 102, 102); font-style: italic;">#define
+_LIT8(name,s)&nbsp;&nbsp; const static TLitC8&lt;sizeof(s)&gt;</span><span
+ style="color: rgb(102, 102, 102); font-style: italic;">name
+={sizeof(s)-1,s}</span><br
+ style="color: rgb(102, 102, 102); font-style: italic;">
+<span style="color: rgb(102, 102, 102); font-style: italic;">#define
+_L16(a) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (TPtrC16((const
+TText16 *)L ## a))</span><br
+ style="color: rgb(102, 102, 102); font-style: italic;">
+<span style="color: rgb(102, 102, 102); font-style: italic;">#define
+_S16(a)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ((const TText16
+*)L ## a)</span><br
+ style="color: rgb(102, 102, 102); font-style: italic;">
+<span style="color: rgb(102, 102, 102); font-style: italic;">#define
+_LIT16(name,s)&nbsp; const static TLitC16&lt;sizeof(L##s)/2&gt;</span><span
+ style="color: rgb(102, 102, 102); font-style: italic;">name
+={sizeof(L##s)/2-1,L##s}</span><br
+ style="color: rgb(102, 102, 102); font-style: italic;">
+<br>
+_LIT macros - most efficient and preferred Symbian OS literals. <br>
+<span style="color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp; Ex: _LIT(
+KMyLiteralDescriptor, "The quick brown fox jumps over the lazy dog" );</span><br>
+&nbsp;&nbsp;&nbsp; <span
+ style="font-style: italic; color: rgb(102, 51, 51);">KMyLiteralDescriptor
+- can be used as a constant descriptor </span><span
+ style="font-style: italic; color: rgb(102, 51, 51);">for example
+written <br>
+&nbsp;&nbsp;&nbsp; to a file or displayed to a user.<br>
+&nbsp;&nbsp;&nbsp; The _LIT macro </span><span
+ style="font-style: italic; color: rgb(102, 51, 51);">builds a named
+object(KMyLiteralDescriptor) of type TLitC16 </span><span
+ style="font-style: italic; color: rgb(102, 51, 51);">into<br>
+&nbsp;&nbsp;&nbsp; the program binary and stores the appropriate string</span><span
+ style="font-style: italic; color: rgb(102, 51, 51);">.</span><span
+ style="font-style: italic; color: rgb(102, 51, 51);"></span><br>
+<br>
+<br>
+<br>
+<br>
+<span style="font-weight: bold;">Good Descriptor Style<br>
+<img style="width: 592px; height: 675px;" alt=""
+ src="resources/good-descriptor-style.PNG"><br>
+</span><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</small></big>
+</body>
+</html>

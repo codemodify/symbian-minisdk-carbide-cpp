@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <link rel="stylesheet" type="text/css" href="../css/style-sheet.css">
+  <title>Symbian OS</title>
+</head>
+<body>
+<h2>Dynamic Arrays and Buffers</h2>
+<br>
+<span style="font-weight: bold;">for resources:</span><br>
+(o) RArray&lt;class T&gt;<br>
+(o) RPointerArray&lt;class T&gt;<br>
+<br>
+<span style="font-weight: bold;">for elements of data:</span><br>
+(o) CArrayX&lt;class T&gt; - <span
+ style="font-style: italic; color: rgb(102, 102, 102);">ex:
+CArrayFixFlat, CArrayFixSeg, CArrayVarSeg</span><br>
+(o) Dynamic buffer classes<br>
+<br>
+The "<span style="font-weight: bold;">capacity</span>" of a dynamic
+array is the number of elements the array at current moment.<br>
+When the capacity is filled, the array dynamically resizes itself by
+reallocating heap<br>
+memory when the next element is added.<br>
+The number of additional elements allocated to the buffer is determined
+by the "<span style="font-weight: bold;">granularity</span>",<br>
+which is specified at construction time.<br>
+<br>
+So the "granularity" here gives the developer a way to fine-tune the
+overhead done at one<br>
+realocation operation. This useful and dependent on how the array is
+used.<br>
+Ex: mutithreaded app that will do realocation with granularity 1
+becomes very overheading,<br>
+&nbsp;&nbsp;&nbsp; if the granularity is too big - 100 for instance -
+then memory is wasted.<br>
+<br>
+<span style="font-style: italic; color: rgb(102, 102, 102);">The
+"RArray" classes are prefered over the "CArray" - the reason is
+performance.<br>
+Why: The original CArrayX classes use CBufBase, which allows a varied
+dynamic memory </span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">layout for
+the array using either flat or segmented array buffers. </span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">However,
+CBufBase works with byte buffers and requires a TPtr8 object to be
+constructed </span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">for every
+array access. This results in a performance overhead, even for a simple
+flat </span><br style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">array
+containing fixedlength elements. Furthermore, for every method which
+accesses the</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">array,
+there are a minimum of two assertions to check the parameters, even in
+release builds.</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<br>
+<span style="font-weight: bold;">For a "CArray" + prefix, means:</span><br>
+<span style="font-style: italic; color: rgb(102, 0, 0);">"Fix" - for
+elements which have the same length - can be contained in </span><span
+ style="font-style: italic; color: rgb(102, 0, 0);">the array buffer.</span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<br style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">"Var" - for
+elements which have different length - is contained in its </span><span
+ style="font-style: italic; color: rgb(102, 0, 0);">own heap cell, <br>
+and the array buffer contains pointers to them.<br>
+<br>
+"Pak" - for a packed array where the elements are of variable length;<br>
+they are copied so they may be contained within the array buffer.<br>
+Each element is preceded by its length information, rather like a
+descriptor.<br>
+<br>
+"Ptr" for an array of pointers to CBase-derived objects.<br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+</span><img style="width: 604px; height: 537px;" alt=""
+ src="resources/carray-memory-layout.PNG"><br>
+<br>
+<br>
+"CArray" classes that is preferred to use for variable length data:<br>
+<br style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">"CArrayVarFlat"
+- is used for variable-length elements referenced by pointer elements, </span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">using a flat
+memory layout for the array.</span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<br style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">"CArrayVarSeg"
+- is used for variable-length elements referenced by pointer elements, </span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">using a
+segmented array layout.</span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<br style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">"CArrayPakFlat"
+- is used for fixed- or variable-length elements that are stored in </span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">the flat array
+buffer itself, each element containing information about its length.<br>
+<br>
+"CArrayPtrSeg" - is used for an array of pointers in a segmented array.<br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+</span><br>
+<img style="width: 631px; height: 584px;" alt=""
+ src="resources/hierarchy-of-carray.PNG"><br>
+<br>
+<br>
+<span style="font-weight: bold;">Dynamic Descriptor Arrays </span>(arrays
+of strings)<br>
+<br>
+These arrays extend the dynamic array classes and are defined in the <br>
+Symbian OS Basic Application Framework Library (BAFL) component, which
+means <br>
+that you must link against "bafl.lib" in order to use them.<br>
+<br>
+There are two types of descriptor array, both of which are provided for
+<br>
+both 8-bit and 16-bit descriptors:<br>
+<br>
+(o) a pointer descriptor array<br>
+&nbsp;&nbsp;&nbsp; holds only non-modifiable "TPtrC" descriptor
+elements. The pointer descriptors <br>
+&nbsp;&nbsp;&nbsp; are added to the array, but the data they point to
+is not copied.<br>
+&nbsp;&nbsp;&nbsp; Calsses: "<span style="font-weight: bold;">CPtrC8Array</span>",
+"<span style="font-weight: bold;">CPtrC16Array</span>".<br>
+&nbsp;&nbsp;&nbsp; Derived from: "<span style="font-weight: bold;">CArrayFixFlat&lt;TPtrC8&gt;</span>",
+"<span style="font-weight: bold;">CArrayFixFlat&lt;TPtrC16&gt;</span>"
+respectively.<br>
+<br>
+(o) a general descriptor array<br>
+&nbsp;&nbsp;&nbsp; hold any descriptor type, storing it as a
+nonmodifiable element. That is, <br>
+&nbsp;&nbsp;&nbsp; an <span style="font-weight: bold;">"HBufC"</span>
+copy is created for each descriptor added to the array; the array <br>
+&nbsp;&nbsp;&nbsp; itself stores pointers to these heap descriptor
+copies. The abstract base <br>
+&nbsp;&nbsp;&nbsp; class for a buildindependent general descriptor
+array is <span style="font-weight: bold;">"CDesCArray"</span> - <span
+ style="font-style: italic;">the explicit</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; variants
+CDesC16Array and CDesC8Array may be used where </span><span
+ style="font-style: italic;">necessary</span>. <br>
+&nbsp;&nbsp;&nbsp; These classes derive from <span
+ style="font-weight: bold;">"CArrayFixBase"</span>. The concrete
+implementation classes<br>
+&nbsp;&nbsp;&nbsp; are <span style="font-weight: bold;">"CDesCXArrayFlat"</span>
+- for flat array storage, or <span style="font-weight: bold;">"CDesCXArraySeg"
+- </span>for <br>
+&nbsp;&nbsp;&nbsp; segmented storage, where X=8, 16, or is not declared
+explicitly.<br>
+<br>
+<span style="font-style: italic;">Which and when to use:</span><br>
+<span style="font-style: italic; color: rgb(102, 0, 0);">General
+descriptor arrays are useful because you do not have to use a
+particular </span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">concrete
+descriptor type and thus can equally well store </span><span
+ style="font-weight: bold; font-style: italic; color: rgb(102, 0, 0);">HBufC,
+TPtrC or TBuf</span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">objects in the
+array. These arrays take a copy of the original descriptor, which </span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">increases the
+amount of memory used compared to the pointer descriptor arrays, which </span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">do not take
+copies. However, it does mean that the original descriptor can then be </span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">safely
+discarded when using the general descriptor arrays. Pointer descriptor
+arrays </span><br style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">do not take
+copies, so the descriptor elements must remain in memory for the
+lifetime </span><br style="font-style: italic; color: rgb(102, 0, 0);">
+<span style="font-style: italic; color: rgb(102, 0, 0);">of the array,
+otherwise it references invalid information.</span><br
+ style="font-style: italic; color: rgb(102, 0, 0);">
+<br>
+<br>
+<span style="font-weight: bold;">Fixed-Length Arrays<br>
+<br>
+</span>"TFixedArray<span style="font-weight: bold;">" - </span>hen you
+know the number of elements that will occupy an array.<br>
+<br>
+<br>
+<span style="font-weight: bold;">Dynamic Buffers - </span>( CBufFlat,
+CBufSeg )<span style="font-weight: bold;"><br>
+</span>Useful for storing binary data when its size is not fixed at
+compile time and <br>
+it may need to expand to a potentially significant size at runtime.<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body>
+</html>

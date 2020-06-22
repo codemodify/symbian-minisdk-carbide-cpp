@@ -1,0 +1,772 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <link rel="stylesheet" type="text/css" href="../css/style-sheet.css">
+  <title>System Structure</title>
+</head>
+<body>
+<br>
+<h2>...System structure</h2>
+<h4>(o) Kernel</h4>
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; </span><span
+ style="color: rgb(102, 102, 102); font-style: italic;">- the code that
+runs the OS on a CPU.<br>
+&nbsp;&nbsp;&nbsp; - the data used to track how things are running.<br>
+&nbsp;&nbsp;&nbsp; - implements the operating system's design model.<br>
+&nbsp;&nbsp;&nbsp; <br>
+<span style="color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp; Types of
+the kernel:<br>
+&nbsp;&nbsp;&nbsp; - monolithic<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; Provide all
+OS functions and hardware abstraction.<br>
+&nbsp;&nbsp;&nbsp; - micro kernel<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; Provide a
+small set of system functions and hardware models.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; The rest is
+provided by server apps, that run outside of mikrokernel.<br>
+&nbsp;&nbsp;&nbsp; - hybrid kernel<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; A mikrokernel
+with some of the special functions that usually are provided <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; by
+servers - incorporated in the kernel
+for performance reasons.<br>
+</span></span><span style="color: rgb(102, 102, 102);"><span
+ style="color: rgb(0, 0, 0);"><span
+ style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+- nanokernel</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="color: rgb(102, 102, 102);"><span
+ style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; A kernel inside a kernel.</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+</span></span></span>
+<hr style="width: 100%; height: 2px;"><span
+ style="color: rgb(102, 102, 102);"><span style="color: rgb(0, 0, 0);"><span
+ style="color: rgb(102, 102, 102);"><br>
+</span></span></span>
+<h4>(o) Interrupts</h4>
+<span style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+Current systems are build from devices that through their controllers
+communicate with each-other</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+over a BUS. In order to communicate they need to compete for the BUS
+access. In a BUSed system the</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+CPU must be the primary controlling source. Thus across the BUS there
+is a hierarchy of device </span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+priorities, and a set of rules to work with the priority system. Any
+device controller can</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+communicate with any other device controller sharing the BUS, but their
+'talk' can be </span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+pre-emptied (interrupted) by other device controller with higher
+priorities.</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+A BUS based system is driven by "interrupts" - understoodable as - "a
+ring of a telephone" -</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="color: rgb(102, 102, 102); font-style: italic;">&nbsp;&nbsp;&nbsp;
+meaning an event that is designed to get attention of the hardware or
+software.<br>
+<br>
+&nbsp;&nbsp;&nbsp; So in this preordered chaos, a device can
+rise(emit,signal) and interrupt and draw the CPU's<br>
+&nbsp;&nbsp;&nbsp; attention. In this case it will save what it was
+doing, and get to the device to solve his<br>
+&nbsp;&nbsp;&nbsp; problem. It will return to the saved work after the
+interrupt was served.<br>
+<br style="font-style: italic; color: rgb(102, 102, 102);">
+&nbsp;&nbsp;&nbsp; Device communication is based around this interrupt
+approach which is using a set(many) of interrupt</span><br
+ style="color: rgb(102, 102, 102); font-style: italic;">
+<span style="color: rgb(102, 102, 102); font-style: italic;">&nbsp;&nbsp;&nbsp;
+types. Each interrupt is served by a </span><span
+ style="font-weight: bold; color: rgb(102, 102, 102); font-style: italic;">I</span><span
+ style="color: rgb(102, 102, 102); font-style: italic;">nterrupt </span><span
+ style="font-weight: bold; color: rgb(102, 102, 102); font-style: italic;">S</span><span
+ style="color: rgb(102, 102, 102); font-style: italic;">ervice </span><span
+ style="font-weight: bold; color: rgb(102, 102, 102); font-style: italic;">R</span><span
+ style="color: rgb(102, 102, 102); font-style: italic;">outine. A list
+of pointers to each ISR for<br>
+&nbsp;&nbsp;&nbsp; each interrupt type is kept in the system.
+Interrupts have their own priority system of executing.<br>
+<br>
+&nbsp;&nbsp;&nbsp; The OSes are interrupt driven. They do very little
+one their own. Mostly they wait for an<br>
+&nbsp;&nbsp;&nbsp; interrupt to occur, to be able to do varied tasks.<br>
+<br>
+&nbsp;&nbsp;&nbsp; Operating systems have many services to be used, but
+they propose these services on request only.<br>
+&nbsp;&nbsp;&nbsp; Thus operating systems offer their own system of
+software-interrupts, implemented as sys-calls.<br>
+&nbsp;&nbsp;&nbsp; When it catches a request to 'interrupt' from what
+it was doing and move the attention elsewhere,<br>
+&nbsp;&nbsp;&nbsp; it saves the state of current operation, and moves
+to routine that corresponds to the syscall.<br>
+&nbsp;&nbsp;&nbsp; So here we see that the OS is just a CPU
+implemented in software, that implements its operations<br>
+&nbsp;&nbsp;&nbsp; from smaller operations that resembles its
+own(generalized).<br>
+</span>
+<hr style="width: 100%; height: 2px;"><span
+ style="color: rgb(102, 102, 102); font-style: italic;"><br>
+</span>
+<h4><span style="color: rgb(0, 0, 0);">(o) Processes</span><span
+ style="color: rgb(102, 102, 102); font-style: italic;"></span></h4>
+<h4><span style="color: rgb(102, 102, 102); font-style: italic;"></span></h4>
+<span style="color: rgb(102, 102, 102); font-style: italic;">&nbsp;&nbsp;&nbsp;
+Concurrent programs that run at the same time on a
+computer are called processes.</span><br
+ style="color: rgb(102, 102, 102); font-style: italic;">
+<span style="color: rgb(102, 102, 102); font-style: italic;">&nbsp;&nbsp;&nbsp;
+Process - a couple of threads that run in the same address space,
+identified by the kernel </span><br
+ style="color: rgb(102, 102, 102); font-style: italic;">
+<span style="color: rgb(102, 102, 102); font-style: italic;">&nbsp;&nbsp;&nbsp;
+with the same PCB(process control block).<br>
+</span>
+<hr style="width: 100%; height: 2px;"><span
+ style="color: rgb(102, 102, 102); font-style: italic;"><br>
+</span>
+<h4><span style="color: rgb(0, 0, 0);">(o) Device I/O</span><span
+ style="color: rgb(102, 102, 102); font-style: italic;"></span></h4>
+<h4><span style="color: rgb(102, 102, 102); font-style: italic;"></span></h4>
+<span style="color: rgb(102, 102, 102); font-style: italic;"></span>&nbsp;&nbsp;&nbsp;
+<span style="font-style: italic; color: rgb(102, 102, 102);">Devices -
+are
+very important because the
+software is actually a reflection of devices' parameters<span
+ style="font-family: monospace;">.<br>
+&nbsp;&nbsp;&nbsp; Based on this we can define some reference
+parameters for an OS of what is important or define of<br>
+&nbsp;&nbsp;&nbsp; how an OS implements communication with devices and
+how efficient it is:<br>
+&nbsp;&nbsp;&nbsp; - performance <br>
+&nbsp;&nbsp;&nbsp; - easy of programmability<br>
+&nbsp;&nbsp;&nbsp; - how the interrupts are generated and serviced (the
+OS is interrupt driven)<br>
+<br>
+&nbsp;&nbsp;&nbsp; Ex:<br>
+</span></span>
+<table style="text-align: left; width: 689px; height: 219px;" border="0"
+ cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; text-align: right;"><span
+ style="font-style: italic; color: rgb(102, 102, 102);"></span><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;"><span style="font-family: mon;">(A) - G</span>generalized
+      </span></span><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;">way to service an I/O request:</span></span></td>
+      <td style="vertical-align: top; text-align: right;"><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;">(B) - Modern way to service an I/O
+request:</span></span></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; text-align: right;"><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;"><img
+ style="width: 161px; height: 154px;" alt=""
+ src="resources/general-io-request-servicing.png"></span></span></td>
+      <td style="vertical-align: top; text-align: center;"><img
+ style="width: 176px; height: 155px;" alt=""
+ src="resources/modern-io-request-servicing.png"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<span style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;"><br>
+&nbsp;&nbsp;&nbsp; Request made by an application is fielded by OS
+through one of its APIs. The OS uses the device<br>
+&nbsp;&nbsp;&nbsp; driver(that corresponds to the hardware device) and
+passes the request to the hardware.<br>
+&nbsp;&nbsp;&nbsp; The hardware receives the request, services it and
+passes the result back up through the OS.<br>
+&nbsp;&nbsp;&nbsp; The device interrupts the OS through the
+device-driver.<br>
+<br>
+&nbsp;&nbsp;&nbsp; <span style="font-weight: bold;">(A)</span> -
+requires a lot of waiting, no other </span></span><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;">system </span></span><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;">duties would be performed during this
+time.<br>
+</span></span><span style="font-style: italic; color: rgb(102, 51, 51);"><span
+ style="font-family: monospace;"><span
+ style="color: rgb(153, 153, 255);">&nbsp;<span
+ style="color: rgb(102, 102, 204);">&nbsp;&nbsp; Ex of sending a text
+message in a phone:</span></span><br style="color: rgb(102, 102, 204);">
+<span style="color: rgb(102, 102, 204);">&nbsp;&nbsp;&nbsp; 1- setting
+up the message data</span><br style="color: rgb(102, 102, 204);">
+<span style="color: rgb(102, 102, 204);">&nbsp;&nbsp;&nbsp; 2-
+initiates the transfer by signaling the mobile phone device to transfer
+the message,</span><br style="color: rgb(102, 102, 204);">
+<span style="color: rgb(102, 102, 204);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; the request goes (through an OS API) to the device-driver</span><br
+ style="color: rgb(102, 102, 204);">
+<span style="color: rgb(102, 102, 204);">&nbsp;&nbsp;&nbsp; 3- on the
+hardware the message is sending<br>
+</span></span></span><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;">&nbsp;&nbsp;&nbsp; Here for an
+application that does this is OK to wait(freeze) till the mesage is
+sent.<br>
+&nbsp;&nbsp;&nbsp; But for an OS to wait the same amoun of time is not
+an option. All other information <br>
+&nbsp;&nbsp;&nbsp; (like incomming call) during the message sending
+will not be servcices(lost) - <br>
+&nbsp;&nbsp;&nbsp; which is not for what an OS is created. <br>
+&nbsp;&nbsp;&nbsp; This kind of communication method is called -
+synchronous communication - and it is adequate<br>
+&nbsp;&nbsp;&nbsp; for a real-time communication. <br>
+</span></span><span style="font-style: italic; color: rgb(102, 51, 51);"><span
+ style="font-family: monospace;"><span
+ style="color: rgb(102, 102, 204);"></span></span></span><br>
+<span style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;">&nbsp;&nbsp;&nbsp; <span
+ style="font-weight: bold;">(B)</span> - </span></span><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;">The real-time behaviour is a part of
+current modern OSes - meaning that a general purpose<br>
+&nbsp;&nbsp;&nbsp; OS is asynchronous by its behaviour - applicaitons
+and OS can continue while waiting for an <br>
+&nbsp;&nbsp;&nbsp; I/O to finish. In example (B) the hardawre signals
+when the transfer has begun, and signals when<br>
+&nbsp;&nbsp;&nbsp; the tranfer finishes and the results for an I/O are
+ready.<br>
+<br>
+&nbsp;&nbsp;&nbsp; The a-synchronous deive I/O means that the OS must
+keep track of the state of the devices.<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; If the OS is going
+to "get back" to handle a device after it has serviced a request, it
+must</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; 'write down'
+somewhere what was happening with the device when last time it was
+working with it.<br>
+</span>&nbsp;&nbsp;&nbsp; This "record-keeping" activity is the very
+important one and is the one that keeps and OS busy<br>
+&nbsp;&nbsp;&nbsp; most of the time, and that takes lots of memory
+needed to run an OS.<br>
+<br>
+&nbsp;&nbsp;&nbsp; To minimize the OS involvement in servicing an I/O
+request and correspondengly system resouces<br>
+&nbsp;&nbsp;&nbsp; needed for this(CPU time, memory sapce) - more I/O
+can be placed on the device by adding more<br>
+&nbsp;&nbsp;&nbsp; interrupts to enable communication. The device could
+do all the operations by itself - and only<br>
+&nbsp;&nbsp;&nbsp; filling in a speciffic area in the shared memory
+with the result data. This way the OS gets <br>
+&nbsp;&nbsp;&nbsp; involved only everything is ready, by being
+signaled(interupt) by the device.<br>
+&nbsp;&nbsp;&nbsp; This method of the I/O is called DMA - direct memory
+access - meaning that the device has access<br>
+&nbsp;&nbsp;&nbsp; to an area in the memory that nobody crosses except
+the OS(reading) and the hardware device(writting).<br>
+&nbsp;&nbsp;&nbsp; With DMA the OS becomes less resource hungry and
+very responsive and speedy. DMA is a form of <br>
+&nbsp;&nbsp;&nbsp; asynchrounous I/O, but it differs from "general </span></span><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;">asynchrounous idea".<br>
+&nbsp;&nbsp;&nbsp; Asynchrounous I/O - is fine-grained - it siganls the
+CPU even when there are small amounts of <br>
+&nbsp;&nbsp;&nbsp; data to transfer. DMA - is coarse-grained - assigns
+all the data tranfer to the device. The OS <br>
+&nbsp;&nbsp;&nbsp; satrts the IO and gets notified when it is done.<br>
+<br>
+&nbsp;&nbsp;&nbsp; We can differentiate 3 types of device communication:<br>
+&nbsp;&nbsp;&nbsp; (o)- synchronous<br>
+<span style="color: rgb(102, 102, 204);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; ex: a handheld linux device that plays video is likely to
+work in real-time with the video driver</span><br
+ style="color: rgb(102, 102, 204);">
+<span style="color: rgb(102, 102, 204);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; and the operating system.</span><br
+ style="color: rgb(102, 102, 204);">
+&nbsp;&nbsp;&nbsp; (o)- a</span></span><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;">synchronous<br>
+<span style="color: rgb(102, 102, 204);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; ex: computers with windowing system use </span></span></span><span
+ style="font-style: italic; color: rgb(102, 102, 204);"><span
+ style="font-family: monospace;">a</span><span
+ style="font-family: monospace;">synchronous I/O to monitor GUI devices
+like mouse.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; When the mouse moves
+it generates an interrupt that cause the OS to read mouse events.<br>
+</span></span><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;">&nbsp;&nbsp;&nbsp; (o)- DMA<br>
+<span style="color: rgb(102, 102, 204);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; ex: computers use DMA for large I/O tasks - like reading
+from a disk-drive. It is enough </span><br
+ style="color: rgb(102, 102, 204);">
+<span style="color: rgb(102, 102, 204);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for an OS to send a read-block-of-data
+command, and can 'relax' to be notified when</span><br
+ style="color: rgb(102, 102, 204);">
+<span style="color: rgb(102, 102, 204);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; the buffer data is ready. (The data
+might be very big, so if the DMA was not present here</span><br
+ style="color: rgb(102, 102, 204);">
+<span style="color: rgb(102, 102, 204);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; then even with an async-IO the task
+would slow down the OS and its responsiveness.)</span><br
+ style="color: rgb(102, 102, 204);">
+</span></span><span
+ style="font-style: italic; color: rgb(102, 102, 204);"><span
+ style="font-family: monospace;"></span></span><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;"></span></span>
+<hr style="width: 100%; height: 2px;"><span
+ style="font-style: italic; color: rgb(102, 102, 102);"><span
+ style="font-family: monospace;"></span></span><br>
+<h4>(o) Storage structures:</h4>
+&nbsp;&nbsp;&nbsp; Another essential component is the ability to
+store/stock/remember data for later to be able<br>
+&nbsp;&nbsp;&nbsp; to refet to it. Data being: <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - current states of the devices<br>
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; - application related states like
+- stack, heap, instruction to be executed etc...<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - any dynamic data that be needed
+to run an OS<br>
+<br>
+&nbsp;&nbsp;&nbsp; The core computing-cycle known also as
+'fetch-execute' cycle, is very dependent on the storage.<br>
+&nbsp;&nbsp;&nbsp; It fetches an instruction from memory(<span
+ style="font-weight: bold;">storage</span>), puts it in a register(<span
+ style="font-weight: bold;">more storage</span>), excutes that<br>
+&nbsp;&nbsp;&nbsp; instruction by possibly fetching more information(<span
+ style="font-weight: bold;">more storage</span>) and stores the result
+of execution<br>
+&nbsp;&nbsp;&nbsp; in memory(<span style="font-weight: bold;">even more
+storage</span>). <span
+ style="font-style: italic; color: rgb(102, 102, 102);">Note: this
+basic computing cycle is part of the design developed by</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+John von Neumann - who built it into a larger computing system based on
+a sequential computer memory.<br>
+</span><span style="color: rgb(0, 0, 0);">&nbsp;&nbsp;&nbsp; The
+storage mechanism can be viewed as an hierarchy because it permits to
+understand their relationship.<br>
+&nbsp;&nbsp;&nbsp; Each layer of storage is way to extend the upper
+level, to give it more space for execution. The drawback<br>
+&nbsp;&nbsp;&nbsp; is that as walk down the hierarchy the speed access
+decreses. <br>
+<br>
+</span>
+<table style="text-align: left; width: 859px; height: 244px;" border="1"
+ cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; text-align: right;"><img
+ style="width: 180px; height: 232px;" alt=""
+ src="resources/storage-model.png"><br>
+      </td>
+      <td style="vertical-align: top;">
+      <table style="text-align: left; width: 100%; height: 44px;"
+ border="1" cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr>
+            <td style="vertical-align: top;">Registers</td>
+            <td style="vertical-align: top;"><small>The fastest memory
+available, and the most expensive. Depending on how a processor is
+constructed there is small or large set of them. Usually they are used
+by the hardware, but an OS must have knowlege of and access to&nbsp; a
+certain set of them. They are volatile and therefore present a
+temporary storage.<br>
+            <br>
+            </small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">Cahche</td>
+            <td style="vertical-align: top;"><small>An intermediar
+memory(buffer) between the registers and slower main memory. Cache is
+faster and more expensive than main memory, but cheaper and slwoer
+thatn register memory. On a tipical computer system cache is splited
+into sublevels: '<span style="font-weight: bold;">L1</span>' and '<span
+ style="font-weight: bold;">L2</span>'...<br>
+            <span style="font-style: italic;"><span
+ style="color: rgb(102, 102, 102);">The hierarchy continues to apply to
+these levels: L1 is more fast&amp;expensive than L2, L2 is more
+fast&amp;expensive than L3, etc.</span><br>
+            </span>Cache is a method to free the hardware from the need
+to wait a read or write to/from the main memory. If an item being read
+is present in the cache, then it is taken from there regardless if it
+present in the main memory also. If data needs to be written, then the
+cache controller takes care of the writting and free the CPU for other
+operations. Cache memory is volatile and are a temporary storage.<br>
+            <span style="color: rgb(102, 102, 102); font-style: italic;">'Cache'
+- approach was developed to shield devices from slow data access -
+which will result in
+slow device activity if no cache is present. Thus cahce-management is
+an important issue. For ex: if
+cache is full and the CPU needs to write more data to it, then some
+data in the cache is overwritten. If
+the cache is managed carefully then the relevant data is kept in the
+cahce and the new data is written to
+the main-memory. The idea of - careful management - is dependent on the
+OS.</span></small><br>
+            <small><br>
+            <span style="font-style: italic;"> </span></small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">Main&nbsp; Memory </td>
+            <td style="vertical-align: top;"><small>This is a general
+purpose temporary storage type.<br>
+            </small><small>It can store:</small><br>
+            <small>- program code while a part of it executed on CPU.<br>
+- program's data.<br>
+- recently it is a common method for the GPU to use main<br>
+&nbsp; memory for its needs.<br>
+This memory is used by first 2 layers for temporary storage when they
+are full.<br>
+            <br>
+            </small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">Seondary,Tertiary, <br>
+and so forth...<br>
+            </td>
+            <td style="vertical-align: top;"><small>Is a slower
+extention of main memory that holds large quantities of data
+permanently. Used to store both programs and data.<br>
+            <br>
+            </small> </td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">Virtual Storage<br>
+            </td>
+            <td style="vertical-align: top;"><small>The idea of virtual
+storage is a concept that works across the storage-hierarchy. The <span
+ style="font-weight: bold;">storage is virtual when </span>it has more
+space or attributes that it phisically </small><small>has</small><small>.
+Virtual storage is implemeneted as an extension of one layer in the
+hierarchy on lower layers.<br>
+Thus memory can be taken as:<br>
+- main memory is virtual extension of the cache.<br>
+- disk storage is virtual extension of the main memory <br>
+            <span style="font-style: italic; color: rgb(102, 102, 102);">(virtual
+main memory is implemented using the disk storage known as swap file in
+Windows, and swap partitions or file in unixes like xBSDs).</span><br>
+- etc... down the hierarchy.<br>
+            <br>
+            <br>
+            </small></td>
+          </tr>
+        </tbody>
+      </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<h4>(o) Hardware Access and Protection
+</h4>
+&nbsp;&nbsp;&nbsp; Sharing computer resources means they can be used
+more efficiently and more completely. To the applications<br>
+&nbsp;&nbsp;&nbsp; it appears (the OS makes the illusion) that they are
+the only one who uses that resource.<br>
+<br>
+&nbsp;&nbsp;&nbsp; In the process of sharing, the OS is just another
+program that competes for the resource. But the difference<br>
+&nbsp;&nbsp;&nbsp; is that it has a bit more priveleges - this is
+because it has to manage the rest of the programs and itself.<br>
+<br>
+&nbsp;&nbsp;&nbsp; So while doing this sharing, managing apps and
+itself - there were developped different protection mechanisms,<br>
+&nbsp;&nbsp;&nbsp; that allow a 'safe existence and running' of all
+that a computer can give.<br>
+<br>
+&nbsp;&nbsp;&nbsp; Let's consider how protection is addressed in OS
+desing. We must think how to protect programs from each other,<br>
+&nbsp;&nbsp;&nbsp; and how to protect resources like CPU and
+memory(cahce,RAM,virtual). The protection is not related to only allow<br>
+&nbsp;&nbsp;&nbsp; an organized access to these resources, but also to
+keep malicious code from accessing resources in ways that <br>
+&nbsp;&nbsp;&nbsp; could affect the operations or state of other
+programs or the whole system.<br>
+<br>
+&nbsp;&nbsp;&nbsp; <span style="color: rgb(153, 0, 0);">Protection
+modes</span> - protecting programs from each other includes protecting
+OS from other programs. In order to<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; achieve this it was developed ways to
+operate within the system. The OS needs a <span
+ style="font-style: italic; font-weight: bold;">'privileged mode'</span>,
+other <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; programs need a <span
+ style="font-weight: bold; font-style: italic;">'user mode'</span>.
+User-mode is restricted to tasks that a program may perform -
+arithmetical <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; computation, executing statements in
+program code. Privileged-mode allows a program to execute tasks that<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; only the OS should do - working with
+devices or managing which program should be run.<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Managing operation-modes fast and
+efectively will require an implication from hardware side. Most hardware<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; architectures include few operation
+modes. This is implemented by a set of mode-bits to indicate the current<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; operation mode. Also there are a set of
+priviliged-instructions that only a priviliged program may execute - <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; for this kind of instructions the
+hardware forces the checking of mode-bits.<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; When a usual program needs to do a
+privileged mode operation, it asks the OS to do it by calling a
+corresponding<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; syscall() defined by the OS.<br>
+<br>
+&nbsp;&nbsp;&nbsp; <span style="color: rgb(153, 0, 0);">Protecting
+Memory</span> - <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; - we must guard a program from changing
+the memory from another program<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; - this is done in cooperation with the
+harware - when a program is running the OS sets 2 registers:<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; a) a base register - holds the
+lowest address that can be used by the code.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; b) a limit register - holds the
+number of memory addresses that can be addressed by the code.<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Setting these registers is done by the
+OS only(priveleged instructions) and is a part of the process<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; to work to share the CPU.<br>
+&nbsp;&nbsp;&nbsp; <br>
+<span style="color: rgb(153, 0, 0);">&nbsp;&nbsp;&nbsp; Protecting the
+CPU - </span>all the apps that run at the same time on a computer
+share the CPU, this includes the OS.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Protecting the CPU means we must ensure
+that the control is always returned back to the OS from a program,<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; even if that is a buggy program that
+does not respond. If this is not ensured then we have data loss.<br>
+<span style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; Ex: If this happens on a mobile phone while a conversation
+is taking place, then the conversation will freeze.</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Or if a system code would had a bug
+that caused user code to run priveleged instructions that would write</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; to protected memory and corrupt system
+tables or any other critical data.<br>
+<br style="font-style: italic; color: rgb(102, 102, 102);">
+</span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; There have been developed ways
+to protect the CPU from malicious code:<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; - use a timer to cause a
+interrupt to transfer the control back to the OS.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; The timer is set
+when the code starts using the CPU, and is interruped when the amount
+of time has elapsed.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; Timers can be of a
+fixed length, or can be of a variable length - this is done in the OS
+design. A timer<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; interrupt can
+happen at any time, even at inconvenient times - when syscall() is made
+and interrupting the<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; kernel from a
+system call service.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; - combine the variable
+timer usage with control concept of processor sharing. This idea
+permits an OS to <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; implement
+concepts of process management, including the time slices and context
+switching.<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; The duties done by OS based on timers
+are very complex: at each context switch the timer for the process must<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; be reset for the next execution. If the
+timer is a variable timer, then the new value is derived for the next<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; program' time slice.<br>
+<br>
+&nbsp;&nbsp;&nbsp; <span style="color: rgb(153, 0, 0);">Communication
+Structures -</span> The fourth component of a modern computer is
+communication.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; The structures that have been developed
+to handle the communication issues, resemble those that <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; address the I/O. Communication is a
+special case of I/O, and thus a special attention and specialized<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; APIs and OS structures has been
+allocated to this area. Some OSes like Symbian - have been designed
+around <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; the communication issues.<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; At lowest level the communication is
+binary data moving through the phisical devices connected to the
+computer.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; An OS can take a variety of approaches
+to implement device I/O and to expose those I/O interface to other APIs.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; On top of the physical I/O device, OSes
+implement an interface between the software and hardware - they are <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; called "drivers" - or device drivers.<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; On top of the drivers the OS places a
+layer that allows users to use hardware through the priveleged kernel<br>
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; instructions.<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<h4>Real examples:</h4>
+<hr style="width: 100%; height: 2px;"><br>
+OS/360 and MVS<br>
+&nbsp;&nbsp;&nbsp; A line of mainframes from IBM. The hardware was
+developed ahead before the OSes were to run <br>
+&nbsp;&nbsp;&nbsp; on them. Thus the hardware existed while programmers
+were trying to get an OS that made that<br>
+&nbsp;&nbsp;&nbsp; hardware useful to run.<br>
+<br>
+&nbsp;&nbsp;&nbsp; (o) The first version of OS/360 was the simpliest:<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; a sequential scheduler - <span
+ style="font-weight: bold;">PCP</span>(primary control prorgam) - it
+performed one task at<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; a time. The control was resturned
+to the OS when a program was done. The I/O was<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; synchronous.<br>
+<br>
+&nbsp;&nbsp;&nbsp; (o) Next version of OS/360 introduced
+multiprogramming with a fixed number of tasks (MFT).<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="font-weight: bold;">MFT
+</span>could run up to 15 tasks at once and could reschedule tasks
+while they were waiting<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for synchronoud IO to finish.<br>
+<br>
+&nbsp;&nbsp;&nbsp; (o) Last version of OS/360 allowed a variable number
+of tasks to be run at concurently.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Multitasking with a variable
+number of tasks (<span style="font-weight: bold;">MVT</span>) also
+supported rescheduling for<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; synchronous-I/O-related tasks.<br>
+<br>
+&nbsp;&nbsp;&nbsp; (o) A new version of operating system - SVS (single
+virtual storage) was developed.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; SVS implemented multitasking, but
+forced all processes to occupy the same memory sapce.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Context swiching was expensive
+but memory protection was simple. The only memory that<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; could be violated is the OS's
+memory.<br>
+<br>
+&nbsp;&nbsp;&nbsp; (o) The most popular version of the OS is the - <span
+ style="font-weight: bold;">MVS </span>(multiple virtual storage).<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; MVS puts each process in its own
+address space, allowing memory to grow as needed by<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; adding virtual memory on the
+disk. Memory protection was more complicated - because<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; process memory was moved in and
+out of physical memory, and because multiple applications<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; could be resident in memoryat the
+same time.<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; MVS idea was inherited in
+implementations lilke: OS/370 and OS/390 for various incarnations<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; of IBM mainframes.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+<br>
+Unix and Linux<br>
+&nbsp;&nbsp;&nbsp; Unix evolved from MULTICS and used many of its
+ideas. The character of the UNIX has a very loosely<br>
+&nbsp;&nbsp;&nbsp; connected feel: all of its components build on each
+other through use of APIs and its approach to<br>
+&nbsp;&nbsp;&nbsp; to software design is to build the OS by
+interconnecting simplier tools.<br>
+<br>
+&nbsp;&nbsp;&nbsp; (o) monolitic kernel<br>
+&nbsp;&nbsp;&nbsp; (o) unix is multitasking with mutlithreading support<br>
+&nbsp;&nbsp;&nbsp; (o) devices are implemetned as files<br>
+&nbsp;&nbsp;&nbsp; (o) uses virtual memory and memory mapping to avoid
+processes from accessing data of other processes<br>
+&nbsp;&nbsp;&nbsp; (o) supports many file systems and communication
+methods through the usage of dynamically lodable modules.<br>
+<br>
+<br>
+Symbian OS<br>
+&nbsp;&nbsp;&nbsp; Unique in ins existence since it was desgined with
+the idea for smartphone usage.<br>
+&nbsp;&nbsp;&nbsp; Historically it comes from: SIBO -&gt; EPOC -&gt;
+Symbian.<br>
+<br>
+&nbsp;&nbsp;&nbsp; (o) microkernel design - minimal system functions
+and data are in the kernel with many system<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; functions spread out into the
+user space servers.<br>
+&nbsp;&nbsp;&nbsp; (o) supports the use of virtual machines: the
+implementation of a computer inside a computer.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; The implementation of Java
+language and Java run-time needed to run Java is done using this
+mechanism.<br>
+&nbsp;&nbsp;&nbsp; (o) Communication structures in Symbian are easyly
+extended. Modules can be written to implement anything,<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; from UI to the new protocol
+implementations to new device drivers. Because of the microkernel design<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; these new modules can be
+introduced and loaded dynamically.<br>
+&nbsp;&nbsp;&nbsp; (o) Designed at its core with the APIs specialized
+for multimedia. Multimedia devices and content are<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; handled by special APIs and by a
+framework that lets the user descrive new and existing content, and<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; what to do with it.<br>
+<br>
+&nbsp;&nbsp;&nbsp; (o) object oriented - syscalls involve system or
+kernel side objects.<br>
+&nbsp;&nbsp;&nbsp; (o) multitasking with multithreading support.<br>
+&nbsp;&nbsp;&nbsp; (o) FAT32 - file system.<br>
+&nbsp;&nbsp;&nbsp; (o) no virtual memory is implemented because of its
+smartphone orientation where no disk storage exists.<br>
+&nbsp;&nbsp;&nbsp; (o) pluggable message architecture - one where new
+message types can be invented and implemented<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; by developing modules that are
+dynamically loaded by messaging server.<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body>
+</html>

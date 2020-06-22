@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <link rel="stylesheet" type="text/css" href="../css/style-sheet.css">
+  <title>Processes, Threads, Active Objects</title>
+</head>
+<body>
+<h2>Processes<br>
+</h2>
+Process - a program in state of execution. It becomes the center of
+system that shares the CPU and grants<br>
+access to all programs that need it.<br>
+<br>
+Process is made up of:<br>
+- text section - the code that executes.<br>
+- data section - variables used in the code.<br>
+- state of the other hardware components that the program needs to run:<br>
+&nbsp;&nbsp;&nbsp; (o) program counter(aka IP-instruction pointer) -
+holds the address of the instruction being executed.<br>
+&nbsp;&nbsp;&nbsp; (o) temporary registers - used to execute process'
+instructions.<br>
+&nbsp;&nbsp;&nbsp; (o) program stack - contains data required to run
+the program - from a programming language they are:<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; parameters, return addresses,
+local variables.<br>
+- state of the other hardware components taht the program was written
+to work with.<br>
+<br>
+<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Process's
+States</span><br>
+      <br>
+      <img style="width: 492px; height: 176px;" alt=""
+ src="resources/process-states.PNG"></td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Process
+Control Block</span><br>
+      <br>
+PCB - is the structure that represents a process in the system and all
+its associated resources:<br>
+&nbsp;&nbsp;&nbsp; (o)- process state<br>
+&nbsp;&nbsp;&nbsp; (o)- process ID<br>
+&nbsp;&nbsp;&nbsp; (o)- program counter<br>
+&nbsp;&nbsp;&nbsp; (o)- CPU registers<br>
+&nbsp;&nbsp;&nbsp; (o)- parent ID<br>
+&nbsp;&nbsp;&nbsp; (o)- children IDs<br>
+&nbsp;&nbsp;&nbsp; (o)- scheduling information<br>
+&nbsp;&nbsp;&nbsp; (o)- memory management information<br>
+&nbsp;&nbsp;&nbsp; (o)- accounting information<br>
+&nbsp;&nbsp;&nbsp; (o)- I/O status<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Process
+Scheduling<br>
+      <br>
+      <span style="font-weight: bold;"></span></span>The system's
+scheduler is the element in an OS that takes a process from the ready
+queue and allows it<br>
+to execute for a while on the CPU. The act of moving a process from
+state to state is called shceduling.<span style="font-weight: bold;"><span
+ style="font-weight: bold;"></span><br>
+      </span></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<h2>Threads</h2>
+One of the components of the process is the "thread of control" - the
+set of instructions being executed<br>
+on behalf of the program. This thread is orchestrated by the program
+counter and represents an executing program.<br>
+<br>
+If to consider that the program has many threads of control - the PCB
+remains the same. One memory space, one set of accounting information,
+etc...<br>
+<br>
+Now giving the fact that a program withing a single structure can run
+multiple tasks, we get the fact that threads are very welcome on a
+system because they do not require context switching - and thus have
+the potential of executing much faster than two processes doing the
+same tasks as the threads would do.<br>
+<br>
+Such a system is called multithreading.<br>
+Benefits of multithreading:<br>
+- sharing of resources: memory space, system resources, code - of the
+process they belong.<br>
+- saving resources: expensive and time consuming allocations of new
+resources is not needed for each thread.<br>
+- interacting with user: background and blocking operations can be done
+in threads.<br>
+- accessing multiple processors: if there are many CPUs, a
+multithreaded app can take advantage of this.<br>
+<br>
+<br>
+<h4 style="text-align: right;">User and Kernel threads</h4>
+<hr style="width: 100%; height: 2px;">A multithreaded app is composed
+of user threads. These threads run on behalf of a process, which itself<br>
+runs in user mode. Threads that run in user mode at user level, consume
+user resources and interact with<br>
+the system at user level.&nbsp;&nbsp; The kernel is not needed till
+syscalls() are made.<br>
+<br>
+If an OS supports user-level-multithreading, the threading of the
+kernel affects how multithreaded apps<br>
+execute.<br>
+<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><img
+ style="width: 390px; height: 294px;" alt="" src="resources/threads.PNG"><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Single
+Threaded kernels (A)<br>
+      </span>Called many-to-one kernel threading model. Many user
+threads compete for a single kernel thread of kernel control. The
+result is lots of waiting in the user threads. In this model user
+threads still get some benefit, but when interacting with the kernel
+there is no benefit. To not oeverflow the system with requests from
+threads, some systems of this kernel threading model(ex: Windows NT)
+put a max limit on the user threads that can run at the same time. In
+this model a single thread can block the app if there are many threads
+wanting the kernel control.<br>
+      <br>
+      <span style="font-weight: bold;">Multithreded Kernel (B)<br>
+      </span>Called one-to-one kernel threading model. The kernel
+spawns a new thread for each user-thread that makes kernel requests.
+This increases concurency and eliminates the block of threads. The
+overhead of creating kernel threads can affect the application
+performance. For this reason systems with this model(ex: Win2000) put a
+max limit on the number of running threads with kernel requests.<br>
+      <br>
+      <span style="font-weight: bold;">Multithreaded Kernel (C)</span><br>
+Called many-to-many kernel threading model. This model is <br>
+working out the problem of overhead in (B) - where the bottle neck is
+when it is needed to create/destroy kernel treads for each new
+user-thread with kernel requests.<br>
+Instead it creates it and keeps it runing, till somebody else will need
+to do the requests and an existing one will be used. This model is more
+favorable for multi CPU systems. Many UNIXes support this model.<br>
+      <br>
+      <span style="font-weight: bold;"></span><span
+ style="font-weight: bold;"></span><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<br>
+Issues with threads comes when we talk about the process scheduling,
+that at this step needs to include<br>
+and its threads into account. Basically threads pass through the same
+sates as a process does, and here are spent some additional resources
+by the scheduler to decide what thread of the process needs to be run.<br>
+<br>
+<br>
+<h2>Active Objects</h2>
+Active OBject - is Symbian specialized thread that has some unique
+characteristics:<br>
+<br>
+(o)- each active object is specifically focused on an event that causes
+a thread or process to block.<br>
+<br>
+(o)- each active object works with a single active scheduler that
+listens for events for which <br>
+&nbsp;&nbsp;&nbsp;&nbsp; the object is waiting. All active objects
+within a process uses the same active shceduler.<br>
+<br>
+(o)- an active object defines a speciffic entry point in its code, that
+is used by the active shceduler,<br>
+&nbsp;&nbsp;&nbsp;&nbsp; when an event is generated. The entry point is
+function call with a known prototype.<br>
+<br>
+(o)- while waiting for an event, all active objects in a process act as
+a single thread to the system -<br>
+&nbsp;&nbsp;&nbsp;&nbsp; because they are maintained by the same
+shceduler. <br>
+<br>
+So active objects are a lighter version of threads and a way to
+implement multi threading, because they all within an application
+represent a thread - thus no additional resources would be spent as in
+case for many threads present in an app.<br>
+<br>
+The basic idea is that if you have an Active Object defined in your
+app, then your app will have at least 2 threads: one main , one for the
+active scheduler.<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<h2>Conclusion</h2>
+Symbian favors and is build around the thread concept. A process is
+taken as a collection of threads with<br>
+one single PCB and memory space.<br>
+<br>
+Threading support in Symbian is based on the nanokernel with
+nanothreads.<br>
+Nanokernel provides nanothread-shceduling, synchronization, timing
+services.<br>
+Nanothreads run in priveleged mode and need a stack to store runtime
+data.<br>
+Nanothreads have thread states as the normal process have, but it adds
+few more:<br>
+(o)- suspended - different than waiting - it is blocked by some upper
+level object ex: Symbian OS thread.<br>
+(o)- fastSemaphoreWait - waiting for a fast semaphore to be signaled<br>
+(o)- DFC Wait - waiting for a delayed function call(DFC)to be added to
+the DFC queue; DFC implements an<br>
+&nbsp;&nbsp;&nbsp;&nbsp; interrupt system in Symbian, allowing a
+function call to be processed after a interrupt has been<br>
+&nbsp;&nbsp;&nbsp;&nbsp; processed.<br>
+(o)- sleeping - waits for a speciffic amount of time.<br>
+(o)- other - generic state, used when developers implement custom
+states for nanothreads to extend the<br>
+&nbsp;&nbsp;&nbsp;&nbsp; nanokernel for new platforms( called
+personality layer ).<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body>
+</html>

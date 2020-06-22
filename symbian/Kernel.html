@@ -1,0 +1,374 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <link rel="stylesheet" type="text/css" href="../css/style-sheet.css">
+  <title>Kernel</title>
+</head>
+<body>
+<h2>...Kernel</h2>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div style="text-align: right;">
+<h3>Symbian's Kernel</h3>
+<hr style="width: 100%; height: 2px;"></div>
+<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><img
+ style="width: 359px; height: 297px;" alt="" src="resources/kernel.png"><br>
+      </td>
+      <td style="vertical-align: top;">This is the general structure of
+the Symbian OS's kernel layers.<br>
+The inner layers have the most priveleges that can access anything at
+any time they need. They are the most basic actions and very fast. As
+you move from inner to outer direcction, the layers start to decrease
+in privelege and posibilities to access stuff - this is because they
+don't need to.<br>
+      <br>
+      <table style="text-align: left; width: 100%;" border="1"
+ cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr>
+            <td style="vertical-align: top;"><span
+ style="font-weight: bold;">nanokernel</span><br>
+            </td>
+            <td style="vertical-align: top;"><small>Provides most basic
+functions.<br>
+Simple threads operating in priveleged mode imeplement services that
+are very primitive:<br>
+- shceduling<br>
+- synchronization operations<br>
+- synchronization object( mutexes, semaphores )<br>
+- interrupt handling<br>
+            <br>
+Most of the functions at this level can be pre-emted. All the functions
+also are very primitive - for performance reasons - and they don't do
+any complicated operations like dynamic memory allocations.<br>
+            <br>
+            </small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><span
+ style="font-weight: bold;">Symbian OS kernel</span><br>
+            </td>
+            <td style="vertical-align: top;"><small>Proviodes kernel
+functions needed by the rest of OS.<br>
+All the operations at this level are priveleged operations. They
+combine the functionality from nanokernel to provide more complex tasks:<br>
+- complex object services<br>
+- user-mode threads<br>
+- process scheduling<br>
+- context switching<br>
+- dynamic memory allocation<br>
+- dynamically loads libraries<br>
+- complex synchronization objects<br>
+- interprocess communication<br>
+            <br>
+This level is fully pre-emptible and interrupt can cause this layer to
+reschedule any parts of its execution - even in the middle of the
+context switching.<br>
+            <br>
+            </small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><span
+ style="font-weight: bold;">Servers layer</span><br>
+            </td>
+            <td style="vertical-align: top;"><small>Is typical to
+microkernel architectures. Here reside OS services that do not require
+complete priveleged operations or that have a complexe implementation.<br>
+            <br>
+Server based functions typically govern speciffic areas of
+functionality like:<br>
+- handling the display<br>
+- working with sockets<br>
+            <br>
+Usually they run as user-mode services.<br>
+            <br>
+            </small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><span
+ style="font-weight: bold;">User-mode Applications</span><br>
+            </td>
+            <td style="vertical-align: top;"><small>Run absolutely in
+user mode and perform kernel mode operations by using syscals() or
+using one of the servers.<br>
+            <br>
+            </small></td>
+          </tr>
+        </tbody>
+      </table>
+      <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<br>
+<h4>Active Kernel Components <span style="font-family: monospace;"></span></h4>
+&nbsp;&nbsp;&nbsp; Are parts of the kernel that continously execute
+along with other processes in the OS.<br>
+&nbsp;&nbsp;&nbsp; These kernel processes have higher priorities and
+high levels of protection. <br>
+&nbsp;&nbsp;&nbsp; They are multithreaded to allow for multiple threads
+of access from threads <br>
+&nbsp;&nbsp;&nbsp; of execution in various processes.<br>
+&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; They are active because they need to be able to
+monitor the system in real-time.<br>
+&nbsp;&nbsp;&nbsp; What they do is:<br>
+&nbsp;&nbsp;&nbsp; - handle requests from kernel services.<br>
+&nbsp;&nbsp;&nbsp; - load/unload system modules<span
+ style="font-style: italic;">(passive kernel components)</span>.<br>
+&nbsp;&nbsp;&nbsp; - perform all the book-keeping that needs to be done.<br>
+&nbsp;&nbsp;&nbsp; - assist with working the passive components<span
+ style="font-style: italic;">(as those handle their requests)</span> -
+by implementing<br>
+&nbsp;&nbsp;&nbsp; &nbsp; requests in kernel mode.<br>
+<br>
+<span style="font-family: mon;"><span style="font-weight: bold;"><br>
+</span></span>
+<h4>Passive Kernel Components</h4>
+&nbsp;&nbsp;&nbsp; Are parts of the kernel that do not execute
+continously, but are available for execution<br>
+&nbsp;&nbsp;&nbsp; on behalf of service request.<br>
+<br>
+&nbsp;&nbsp;&nbsp; These components are present on the system under
+forms of libraries and dyniamically loadable<br>
+&nbsp;&nbsp;&nbsp; modules. They contain code that syscalls() and
+interrupt service routines.<br>
+&nbsp;&nbsp;&nbsp; User mode apps can do kernel mode tasks through
+these components.<br>
+<br>
+&nbsp;&nbsp;&nbsp; They are:<br>
+&nbsp;&nbsp;&nbsp; - device drivers - loaded dynamically by some kernel
+implementations when a corresponding device<br>
+&nbsp;&nbsp;&nbsp; &nbsp; is used/attached. In Symbian the device
+drivers are themselves broken down into components that<br>
+&nbsp;&nbsp;&nbsp; &nbsp; are loaded individually.<br>
+&nbsp;&nbsp;&nbsp; - microkernel servers are usually run when needed
+when their services are not used.<br>
+&nbsp;&nbsp;&nbsp; - passive behaviour sometimes is used to implement
+performance. For some microkernels implementations,<br>
+&nbsp;&nbsp;&nbsp; &nbsp; servers are started at boot and run with no
+shutdown. Because they react only to requests, they don't<br>
+&nbsp;&nbsp;&nbsp; &nbsp; run often on CPU, so there is no cost except
+memory they use to stay in. Symbian implements servers<br>
+&nbsp;&nbsp;&nbsp; &nbsp; in this manner.<br>
+<br>
+<br>
+<br>
+<div style="text-align: right;">
+<h3>System Calls and the Kernel</h3>
+<hr style="width: 100%; height: 2px;"></div>
+<span style="font-weight: bold;">Syscall</span> - interface to allow a
+user-mode process to cause a kernel-mode operation.<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; I it a layer between the
+application and inner layers of the kernel.<br>
+<br>
+The advantages:<br>
+&nbsp;&nbsp;&nbsp; - layer of abstraction.<br>
+&nbsp;&nbsp;&nbsp; - increases efficiency and security, by letting
+kernel to coordinate with concurent access<br>
+&nbsp;&nbsp;&nbsp; &nbsp; to resources.<br>
+<br>
+Syscalls are implemented as a system of software interrupts. Usually it
+is implemented with a type <br>
+&nbsp;&nbsp;&nbsp; of hardware instruction that causes a special
+interrupt handler to be invoked.<br>
+<br>
+<br>
+<br>
+<div style="text-align: right;">
+<h3>Interrupt Implementation</h3>
+<hr style="width: 100%; height: 2px;"></div>
+Interrupts are designed to have some indication of priority.<br>
+This is the way how they are differectiated that one is more important
+than another.<br>
+<span style="font-style: italic; color: rgb(102, 102, 102);">Ex:
+"keyboard interrupt" and "timer interrupt to pass control back to the
+OS from process".</span><br>
+<br>
+<br>
+<br>
+<br>
+<div style="text-align: right;">
+<h3>A More Complete Kernel Design in Symbian</h3>
+<hr style="width: 100%; height: 2px;"></div>
+<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">
+      <table style="text-align: left; width: 100%;" border="0"
+ cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr>
+            <td style="vertical-align: top;"><img
+ style="width: 594px; height: 299px;" alt=""
+ src="resources/kernel-extended.png"></td>
+            <td style="vertical-align: top;"><small>The smartphone
+platfprm requires many real-time services but also must
+provide the richness ressembling desktop features. To correspond to all
+of these, Symbian's kernel has a more complicated structure.<br>
+            <br>
+The image on the left shows the structure of the kernel related to how
+a user-mode application would travers a path to execcute kernel-mode
+instructions.</small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><img
+ style="width: 708px; height: 451px;" alt=""
+ src="resources/kernel-extended2.png"><br>
+            </td>
+            <td style="vertical-align: top;"><small><span
+ style="font-style: italic;">This one here is provided as an
+alternative. Choose either of them for better understanding.</span></small><br>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      <br>
+      <table style="text-align: left; width: 100%;" border="1"
+ cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr>
+            <td style="vertical-align: top;"><small>The Symbian<small> </small>OS
+model starts by working directly with the peripherial hardware.<br>
+Several kernel components communicate directly with the hardware:</small><br>
+            </td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><small><span
+ style="font-weight: bold;">Device drivers</span> - are split into 2
+components:<br>
+            <span style="font-weight: bold;">a) PDD</span> - physical
+device driver - interfaces&nbsp; directly with the hardware.<br>
+            <span style="font-weight: bold;">b) LDD</span> - logical
+device driver - presents an interface to upper layers of software.<br>
+            <br>
+In addition kernel can interact directly with the hardware using
+ASSP(application-speciffic standard product) - which implements a
+number of components through an API so that a speciffic driver is not
+needed.<br>
+            <br>
+Finally the realtime components of the OS - especially those incvolved
+with phone calls - can interact with the phone hardware when they run a
+special mode called "Personality Layer".<br>
+            <br>
+            </small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><small><span
+ style="font-weight: bold;">Memory model </span>- used by the OS is a
+model of how memory is organized on a device and how the OS works with
+it.<br>
+            <br>
+            </small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><small><span
+ style="font-weight: bold;">Symbian OS Kernel</span> - relies on a
+nanokernel, but is separated from the real-time portions of the OS.
+Implements various memory models that the platform require.<br>
+            <br>
+            </small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><small><span
+ style="font-weight: bold;">Nanokernel </span>- the most primitive and
+basic part of the OS, and is used by the phone part of the OS and the
+upper level kernel.<br>
+            <br>
+            </small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><small><span
+ style="font-weight: bold;">RTOS </span>and <span
+ style="font-weight: bold;">Personality Layer</span> - are especially
+designed to provide phone functionality.<br>
+RTOS - implements the GSM functions and direct connection to the
+hardware.<br>
+Personality Layer - allows a manufacturer to implement different phone
+functions. Then it acts as a interpreter, translating the non-GSM
+implementation into an implementation the smartphone can understand.<br>
+            <br>
+            </small></td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><small><span
+ style="font-weight: bold;">User-mode</span> - include microkernel
+servers as well as user applications.<br>
+            <br>
+            </small></td>
+          </tr>
+        </tbody>
+      </table>
+      <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body>
+</html>

@@ -1,0 +1,9 @@
+/*
+	Any comments go here
+*/
+
+PRJ_PLATFORMS
+DEFAULT
+
+PRJ_MMPFILES
+consoleapplication.mmp

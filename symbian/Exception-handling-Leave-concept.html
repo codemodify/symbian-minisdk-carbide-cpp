@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <link rel="stylesheet" type="text/css" href="../css/style-sheet.css">
+  <title>Symbian OS</title>
+</head>
+<body>
+<h2>Exception handling - "Leave concept"</h2>
+<br>
+<span style="font-style: italic; color: rgb(102, 102, 102);">In Symbian
+the exception handling is done by adopting the </span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">"Leaves" -
+simple, effective and lightweight exception-handling </span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">mechanism
+which has become fundamental to Symbian OS.</span><br>
+<br>
+A 'leave' may occur:<br>
+- when calling directly the syscall for leaving (<span
+ style="font-style: italic;"> User::Leave() or User::LeaveIfError()</span>
+)<br>
+- when calling a function that is calling the leaving<br>
+- use the overloaded form of "operator new" which takes ELeave as a
+parameter<br>
+<br>
+A 'leave' is used to rize an exception and propagate an error back to a
+place<br>
+where it can be caught by a trap harness and properly handled.<br>
+<big style="font-weight: bold; text-decoration: underline;"><br>
+What happens is:</big><br>
+<span style="color: rgb(102, 102, 102); font-style: italic;">When
+'leaving' the code execution ends there and resumes where it is trapped.</span><br
+ style="color: rgb(102, 102, 102); font-style: italic;">
+<span style="color: rgb(102, 102, 102); font-style: italic;">The leave
+sets the stack-pointer to the context of a trap harness TRAP macro,</span><br
+ style="color: rgb(102, 102, 102); font-style: italic;">
+<span style="color: rgb(102, 102, 102); font-style: italic;">and jumps
+to the desired program location, restoring the register values.<br>
+<br>
+</span><span style="color: rgb(0, 0, 0);">A 'leave' does not termincate
+the flow of execution.<br>
+<br>
+A 'leave' should only be used to propagate an exception to a point in
+the code <br>
+which can handle it gracefully. It should not be used to direct the
+normal flow <br>
+of program logic.<br>
+<br>
+Cases when a function may leave:<br>
+- performs an operation that is not guranteed to succeed. Ex: memory
+allocation.<br>
+<br>
+A leave happens with an error code along it.<br>
+<br>
+<br>
+</span><span style="color: rgb(102, 102, 102); font-style: italic;"></span>Since
+leaving functions by definition leave with an error code (a &#8221;leave
+code&#8221;),<br>
+they do not also need to return error values. Any error that occurs in
+a leaving <br>
+function should be passed out as a 'leave'; <br>
+<br>
+If the function does not leave it is deemed to have succeeded and will
+return normally. <br>
+<br>
+Generally, leaving functions should return <span
+ style="font-weight: bold;">void</span> unless they use the return
+value for<br>
+a pointer or referenceto a resource allocated by the function. <br>
+<br>
+If a function may leave, its name must be suffixed with &#8221;L&#8221; to identify
+the fact.<br>
+Ex:<br>
+<span style="font-style: italic; color: rgb(102, 102, 102);">void
+InitializeL();</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">static
+CTestClass* NewL();</span><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<span style="font-style: italic; color: rgb(102, 102, 102);">RClangerHandle&amp;
+CloneHandleL();<br>
+<br>
+<br>
+</span><big style="text-decoration: underline; font-weight: bold;"><span
+ style="color: rgb(0, 0, 0);">How To Leave<br>
+</span></big><big><span style="color: rgb(0, 0, 0);"><small><br>
+<span style="font-weight: bold;">User::LeaveIfError()</span> - tests an
+integer parameter and causes a leave using the <br>
+integer value as a leave code if the value is less than zero, for
+example, one <br>
+of the <span style="font-weight: bold;">KErrXXX</span> (e32std.h).
+This leave method is useful for turning a nonleaving<br>
+function into one that leaves with </small></span></big><big><span
+ style="color: rgb(0, 0, 0);"><small>a standard Symbian OS error.</small></span></big><br
+ style="font-style: italic; color: rgb(102, 102, 102);">
+<big style="text-decoration: underline; font-weight: bold;"><span
+ style="color: rgb(0, 0, 0);"></span></big><span
+ style="font-style: italic; color: rgb(102, 102, 102);"></span><br>
+<span style="font-weight: bold;">User::Leave()</span> - leaves with the
+integer value passed into it as a leave code.<br>
+<br>
+<span style="font-weight: bold;">User::LeaveNoMemory()</span> - leaves
+but the leave code is hardcoded to be KErrNoMemory <br>
+which makes it, in effect, the same as calling
+User::Leave(KErrNoMemory).<br>
+<br>
+<span style="font-weight: bold;">User::LeaveIfNull()</span> - leaves
+with KErrNoMemory the passed pointer is NULL.<br>
+Sometimes it can be useful to enclose a call to a non-leaving function
+which <br>
+allocates memory and returns a pointer to that memory or NULL if it is
+unsuccessful.<br>
+<br>
+Ex:<br>
+TInt UseClanger(CClanger*
+aClanger);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Forward declaration<br>
+<br>
+CClanger* InitializeClangerL()<br>
+&nbsp;&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp; CClanger* clanger = new (ELeave) CClanger(); // (1)
+Leaves if OOM<br>
+&nbsp;&nbsp;&nbsp;
+CleanupStack::PushL(clanger);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// (2) See Chapter 3<br>
+&nbsp;&nbsp;&nbsp; clanger-&gt;InitializeL();&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; // (3) May leave<br>
+&nbsp;&nbsp;&nbsp; User::LeaveIfError(UseClanger(clanger));
+&nbsp;&nbsp;&nbsp; // (4) Leaves on error<br>
+&nbsp;&nbsp;&nbsp; CleanupStack::Pop(clanger);<br>
+&nbsp;&nbsp;&nbsp; return (clanger);<br>
+&nbsp;&nbsp;&nbsp; }<br>
+<br>
+<br>
+Examinaiton of <span
+ style="font-weight: bold; text-decoration: underline;">"CClanger*
+clanger = new (ELeave) CClanger();"<br>
+</span>- leaves if there is no available memory, and thus allows the
+returned pointer <br>
+&nbsp; to be used without a test if the allocation was successful.<br>
+- what exactly does <span style="font-weight: bold;">"new (ELeave)</span>"
+do:<br>
+&nbsp; when you call new() to allocate an object on the heap you are
+invoking the new operator.<br>
+&nbsp; First it allocates required memory, for the object that is
+calling the "new()", by<br>
+&nbsp; passing in the size of the memory required.<br>
+&nbsp; Then it calls the constructor to initialize an object in that
+memory.<br>
+&nbsp; At this step Symbian has overloaded the "new()" to take an
+additional TLeave parameter<br>
+&nbsp; to the existing one - the size - provided implicitly by "new()".<br>
+&nbsp; <br>
+&nbsp; The TLeave parameter is used to differentiate this form of
+operator new from the <br>
+&nbsp; nonleaving version. The Symbian calls a heap allocation function
+that leaves if <br>
+&nbsp; there is insufficient heap memory available.<br>
+<br>
+<br>
+<br>
+<big style="font-weight: bold; text-decoration: underline;">TRAP and
+TRAPD - to catch the 'leaves'</big><br>
+<br>
+TRAP and TRAPD are the same, the only difference is taht TRAPD decalres
+a variable<br>
+where it will store the result.<br>
+<big style="color: rgb(204, 153, 51);"><br>
+</big><span style="font-style: italic; color: rgb(102, 51, 0);"></span><span
+ style="font-style: italic; color: rgb(102, 51, 0);">TRAPD( </span><span
+ style="font-style: italic; color: rgb(102, 51, 0);">resultCode</span><span
+ style="font-style: italic; color: rgb(102, 51, 0);">, MayLeaveL() );</span><br
+ style="font-style: italic; color: rgb(102, 51, 0);">
+<span style="font-style: italic; color: rgb(102, 51, 0);">if( KErrNone
+!= result )</span><br
+ style="font-style: italic; color: rgb(102, 51, 0);">
+<span style="font-style: italic; color: rgb(102, 51, 0);">{</span><br
+ style="font-style: italic; color: rgb(102, 51, 0);">
+<span style="font-style: italic; color: rgb(102, 51, 0);">&nbsp;&nbsp;&nbsp;
+// FIXME: handle the error here</span><br
+ style="font-style: italic; color: rgb(102, 51, 0);">
+<span style="font-style: italic; color: rgb(102, 51, 0);">}<br>
+<br>
+<span style="color: rgb(153, 0, 0);">equals to</span><br>
+</span><br>
+<span style="font-style: italic; color: rgb(102, 51, 0);">TInt
+resultCode;</span><br
+ style="font-style: italic; color: rgb(102, 51, 0);">
+<span style="font-style: italic; color: rgb(102, 51, 0);">TRAP( </span><span
+ style="font-style: italic; color: rgb(102, 51, 0);">resultCode</span><span
+ style="font-style: italic; color: rgb(102, 51, 0);">, MayLeaveL() );</span><br
+ style="font-style: italic; color: rgb(102, 51, 0);">
+<span style="font-style: italic; color: rgb(102, 51, 0);">if( KErrNone
+!= result )</span><br
+ style="font-style: italic; color: rgb(102, 51, 0);">
+<span style="font-style: italic; color: rgb(102, 51, 0);">{</span><br
+ style="font-style: italic; color: rgb(102, 51, 0);">
+<span style="font-style: italic; color: rgb(102, 51, 0);">&nbsp;&nbsp;&nbsp;
+// FIXME: handle the error here</span><br
+ style="font-style: italic; color: rgb(102, 51, 0);">
+<span style="font-style: italic; color: rgb(102, 51, 0);">}<br>
+</span><br>
+<br>
+<br>
+<br>
+<br style="color: rgb(102, 102, 102); font-style: italic;">
+</body>
+</html>
